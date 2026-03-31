@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -rn \"printf.*$\\\\|echo.*$\\\\|sed.*$\" /c/Users/chamo/Documents/HyDE/Configs/.local/lib/hyde/*.sh)",
+      "Bash(grep -rn \"rm -rf\\\\|dd\\\\|mkfs\\\\|shred\" /c/Users/chamo/Documents/HyDE/Configs/.local/lib/hyde/*.sh)",
+      "Bash(xargs cat:*)",
+      "Bash(chmod +x c:/Users/chamo/Documents/HyDE/Scripts/custom_install.sh c:/Users/chamo/Documents/HyDE/Scripts/security_patches.sh c:/Users/chamo/Documents/HyDE/Scripts/theme_manager.sh c:/Users/chamo/Documents/HyDE/Scripts/harden.sh)"
+    ]
+  }
+}
