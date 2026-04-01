@@ -1,4 +1,4 @@
-﻿hyprland
+hyprland
 hyprpaper
 hyprlock
 hypridle
@@ -20,4 +20,3 @@ qt6ct
 kvantum
 nwg-look
 xdg-desktop-portal-hyprland
-

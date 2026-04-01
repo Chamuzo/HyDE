@@ -1,4 +1,4 @@
-﻿# Manual Pure
+# Manual Pure
 
 Este tema tambien puede instalarse con el modo manual-pure usando el instalador de esta carpeta.
 

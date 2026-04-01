@@ -1,4 +1,4 @@
-﻿# Gruvbox Retro
+# Gruvbox Retro
 
 Dotfiles exportados para mantener una instalacion manual y controlable.
 

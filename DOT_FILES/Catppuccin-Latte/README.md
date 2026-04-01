@@ -1,4 +1,4 @@
-﻿# Catppuccin Latte
+# Catppuccin Latte
 
 Dotfiles exportados para mantener una instalacion manual y controlable.
 

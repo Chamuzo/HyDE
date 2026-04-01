@@ -1,4 +1,4 @@
-﻿# Rose Pine
+# Rose Pine
 
 Dotfiles exportados para mantener una instalacion manual y controlable.
 

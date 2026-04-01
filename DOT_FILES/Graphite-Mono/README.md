@@ -1,4 +1,4 @@
-﻿# Graphite Mono
+# Graphite Mono
 
 Dotfiles exportados para mantener una instalacion manual y controlable.
 

@@ -1,4 +1,4 @@
-﻿# Synth Wave
+# Synth Wave
 
 Dotfiles exportados para mantener una instalacion manual y controlable.
 

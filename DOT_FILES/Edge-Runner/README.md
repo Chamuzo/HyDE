@@ -1,4 +1,4 @@
-﻿# Edge Runner
+# Edge Runner
 
 Dotfiles exportados para mantener una instalacion manual y controlable.
 

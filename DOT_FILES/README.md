@@ -1,4 +1,4 @@
-﻿# DOT_FILES
+# DOT_FILES
 
 Export manual de dotfiles por tema, pensado para usar sin depender de HyDE en tiempo de ejecucion.
 

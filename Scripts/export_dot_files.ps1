@@ -30,6 +30,18 @@ function Copy-IfExists {
     }
 }
 
+function Write-Utf8NoBomLf {
+    param(
+        [string]$Path,
+        [string]$Content
+    )
+
+    $normalized = ($Content -replace "`r`n", "`n" -replace "`r", "`n").TrimStart([char]0xFEFF)
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    $bytes = $utf8NoBom.GetBytes($normalized)
+    [System.IO.File]::WriteAllBytes($Path, $bytes)
+}
+
 $dotFilesRoot = Join-Path $RepoRoot "DOT_FILES"
 $configsRoot = Join-Path $RepoRoot "Configs"
 $sourceAssets = Join-Path $RepoRoot "Source\assets"
@@ -277,7 +289,7 @@ Si cambias Configs y quieres rehacer esta exportacion:
 powershell -ExecutionPolicy Bypass -File .\Scripts\export_dot_files.ps1
 "@
 
-Set-Content -LiteralPath (Join-Path $dotFilesRoot "README.md") -Value $globalReadme -Encoding UTF8
+Write-Utf8NoBomLf -Path (Join-Path $dotFilesRoot "README.md") -Content $globalReadme
 
 foreach ($theme in $themes) {
     $themeRoot = Join-Path $dotFilesRoot $theme.Name
@@ -340,7 +352,7 @@ Fuente oficial:
 $($theme.Repo)
 "@
 
-        Set-Content -LiteralPath (Join-Path $themeConfigRoot "README.md") -Value $placeholder -Encoding UTF8
+        Write-Utf8NoBomLf -Path (Join-Path $themeConfigRoot "README.md") -Content $placeholder
     }
 
     Copy-IfExists -Source $restoreList -Destination $manifestRoot
@@ -369,11 +381,11 @@ $($theme.Repo)
         Replace("__PACMAN_PACKAGES__", (($pacmanPackages | ForEach-Object { '    "' + $_ + '"' }) -join "`r`n")).
         Replace("__APT_PACKAGES__", (($aptPackages | ForEach-Object { '    "' + $_ + '"' }) -join "`r`n")).
         Replace("__DNF_PACKAGES__", (($dnfPackages | ForEach-Object { '    "' + $_ + '"' }) -join "`r`n"))
-    Set-Content -LiteralPath (Join-Path $themeRoot "install.sh") -Value $installScript -Encoding UTF8
+    Write-Utf8NoBomLf -Path (Join-Path $themeRoot "install.sh") -Content $installScript
 
-    Set-Content -LiteralPath (Join-Path $packagesRoot "pacman.txt") -Value (($pacmanPackages -join "`r`n") + "`r`n") -Encoding UTF8
-    Set-Content -LiteralPath (Join-Path $packagesRoot "apt.txt") -Value (($aptPackages -join "`r`n") + "`r`n") -Encoding UTF8
-    Set-Content -LiteralPath (Join-Path $packagesRoot "dnf.txt") -Value (($dnfPackages -join "`r`n") + "`r`n") -Encoding UTF8
+    Write-Utf8NoBomLf -Path (Join-Path $packagesRoot "pacman.txt") -Content (($pacmanPackages -join "`n") + "`n")
+    Write-Utf8NoBomLf -Path (Join-Path $packagesRoot "apt.txt") -Content (($aptPackages -join "`n") + "`n")
+    Write-Utf8NoBomLf -Path (Join-Path $packagesRoot "dnf.txt") -Content (($dnfPackages -join "`n") + "`n")
 
     $manualPureNote = if ($theme.Name -eq "Catppuccin-Mocha") {
         "Este es el tema piloto recomendado para validar el modo manual-pure antes de replicar ajustes finos al resto."
@@ -404,7 +416,7 @@ bash ./install.sh --manual-pure
 - Genera una configuracion minima y standalone para Hyprland, Hyprpaper, Waybar, Kitty y Rofi.
 - Aplica hypr.theme, kitty.theme, rofi.theme, waybar.theme y Kvantum sin usar themepatcher.
 "@
-    Set-Content -LiteralPath (Join-Path $manualPureRoot "README.md") -Value $manualPureReadme -Encoding UTF8
+    Write-Utf8NoBomLf -Path (Join-Path $manualPureRoot "README.md") -Content $manualPureReadme
 
     $sourceFiles = @()
     if (Test-Path -LiteralPath $sourceRoot) {
@@ -482,7 +494,7 @@ $pkgText
 - Si no quieres nada dinamico, puedes dejar sin uso wallbash y fijar colores manuales en Hyprland, Waybar y Kitty.
 "@
 
-    Set-Content -LiteralPath (Join-Path $themeRoot "README.md") -Value $themeReadme -Encoding UTF8
+    Write-Utf8NoBomLf -Path (Join-Path $themeRoot "README.md") -Content $themeReadme
 }
 
 Write-Host "DOT_FILES generated in $dotFilesRoot"

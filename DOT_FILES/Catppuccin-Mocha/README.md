@@ -1,4 +1,4 @@
-﻿# Catppuccin Mocha
+# Catppuccin Mocha
 
 Dotfiles exportados para mantener una instalacion manual y controlable.
 

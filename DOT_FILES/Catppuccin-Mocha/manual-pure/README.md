@@ -1,4 +1,4 @@
-﻿# Manual Pure
+# Manual Pure
 
 Este es el tema piloto recomendado para validar el modo manual-pure antes de replicar ajustes finos al resto.
 

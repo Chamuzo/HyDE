@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 THEME_SLUG="Decay-Green"
@@ -335,7 +335,7 @@ install_packages() {
 
     package_file="$PACKAGES_DIR/$manager.txt"
     if [[ -f "$package_file" ]]; then
-        mapfile -t file_packages < <(grep -Ev '^[[:space:]]*($|#)' "$package_file")
+        mapfile -t file_packages < <(grep -Ev '^[[:space:]]*($|#)' "$package_file" | sed 's/\r$//')
         if [[ "${#file_packages[@]}" -gt 0 ]]; then
             packages=("${file_packages[@]}")
             log "Using package override file: $package_file"
@@ -885,4 +885,3 @@ main() {
 }
 
 main "$@"
-

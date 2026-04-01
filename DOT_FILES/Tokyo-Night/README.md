@@ -1,4 +1,4 @@
-﻿# Tokyo Night
+# Tokyo Night
 
 Dotfiles exportados para mantener una instalacion manual y controlable.
 

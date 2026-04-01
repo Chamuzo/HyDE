@@ -1,4 +1,4 @@
-﻿# Decay Green
+# Decay Green
 
 Dotfiles exportados para mantener una instalacion manual y controlable.
 
