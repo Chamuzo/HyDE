@@ -18,6 +18,81 @@ EXTRACT_ASSETS=1
 DO_BACKUP=1
 DRY_RUN=0
 
+PACMAN_PACKAGES=(
+    "hyprland"
+    "hyprpaper"
+    "hyprlock"
+    "hypridle"
+    "waybar"
+    "rofi"
+    "kitty"
+    "dunst"
+    "wl-clipboard"
+    "grim"
+    "slurp"
+    "pamixer"
+    "brightnessctl"
+    "playerctl"
+    "network-manager-applet"
+    "udiskie"
+    "polkit-kde-agent"
+    "qt5ct"
+    "qt6ct"
+    "kvantum"
+    "nwg-look"
+    "xdg-desktop-portal-hyprland"
+)
+
+APT_PACKAGES=(
+    "hyprland"
+    "hyprpaper"
+    "hyprlock"
+    "hypridle"
+    "waybar"
+    "rofi"
+    "kitty"
+    "dunst"
+    "wl-clipboard"
+    "grim"
+    "slurp"
+    "pamixer"
+    "brightnessctl"
+    "playerctl"
+    "network-manager-gnome"
+    "udiskie"
+    "policykit-1-gnome"
+    "qt5ct"
+    "qt6ct"
+    "kvantum"
+    "nwg-look"
+    "xdg-desktop-portal-hyprland"
+)
+
+DNF_PACKAGES=(
+    "hyprland"
+    "hyprpaper"
+    "hyprlock"
+    "hypridle"
+    "waybar"
+    "rofi"
+    "kitty"
+    "dunst"
+    "wl-clipboard"
+    "grim"
+    "slurp"
+    "pamixer"
+    "brightnessctl"
+    "playerctl"
+    "network-manager-applet"
+    "udiskie"
+    "polkit-kde"
+    "qt5ct"
+    "qt6ct"
+    "kvantum"
+    "nwg-look"
+    "xdg-desktop-portal-hyprland"
+)
+
 log() {
     printf '[%s] %s\n' "$THEME_SLUG" "$*"
 }
@@ -230,6 +305,8 @@ extract_assets() {
 
 install_packages() {
     local package_file manager
+    local -a packages=()
+    local -a file_packages=()
 
     [[ "$INSTALL_PACKAGES" -eq 1 ]] || return 0
 
@@ -244,14 +321,31 @@ install_packages() {
         return 0
     fi
 
+    case "$manager" in
+        pacman)
+            packages=("${PACMAN_PACKAGES[@]}")
+            ;;
+        apt)
+            packages=("${APT_PACKAGES[@]}")
+            ;;
+        dnf)
+            packages=("${DNF_PACKAGES[@]}")
+            ;;
+    esac
+
     package_file="$PACKAGES_DIR/$manager.txt"
-    [[ -f "$package_file" ]] || {
-        warn "Missing package list for $manager: $package_file"
+    if [[ -f "$package_file" ]]; then
+        mapfile -t file_packages < <(grep -Ev '^[[:space:]]*($|#)' "$package_file")
+        if [[ "${#file_packages[@]}" -gt 0 ]]; then
+            packages=("${file_packages[@]}")
+            log "Using package override file: $package_file"
+        fi
+    fi
+
+    [[ "${#packages[@]}" -gt 0 ]] || {
+        warn "No package list available for $manager"
         return 0
     }
-
-    mapfile -t packages < <(grep -Ev '^[[:space:]]*($|#)' "$package_file")
-    [[ "${#packages[@]}" -gt 0 ]] || return 0
 
     log "Installing packages for $manager"
     case "$manager" in

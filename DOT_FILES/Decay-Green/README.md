@@ -10,7 +10,7 @@ Dotfiles exportados para mantener una instalacion manual y controlable.
 - manifests/: listas de restauracion de HyDE usadas como referencia.
 - source/: archivos descargados del repo upstream del tema, incluyendo tarballs y README si existen.
 - packages/: listas de paquetes para pacman, apt y dnf.
-- install.sh: instalador standalone con modo manual-pure y modo bundle.
+- install.sh: instalador standalone con modo manual-pure y modo bundle, con listas de paquetes embebidas.
 - manual-pure/: notas del modo standalone usado como referencia.
 
 ## Estado actual

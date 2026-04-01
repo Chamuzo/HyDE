@@ -365,7 +365,10 @@ $($theme.Repo)
 
     $installScript = (Get-Content -LiteralPath $installTemplate -Raw).
         Replace("__THEME_SLUG__", $theme.Name).
-        Replace("__THEME_NAME__", $theme.Display)
+        Replace("__THEME_NAME__", $theme.Display).
+        Replace("__PACMAN_PACKAGES__", (($pacmanPackages | ForEach-Object { '    "' + $_ + '"' }) -join "`r`n")).
+        Replace("__APT_PACKAGES__", (($aptPackages | ForEach-Object { '    "' + $_ + '"' }) -join "`r`n")).
+        Replace("__DNF_PACKAGES__", (($dnfPackages | ForEach-Object { '    "' + $_ + '"' }) -join "`r`n"))
     Set-Content -LiteralPath (Join-Path $themeRoot "install.sh") -Value $installScript -Encoding UTF8
 
     Set-Content -LiteralPath (Join-Path $packagesRoot "pacman.txt") -Value (($pacmanPackages -join "`r`n") + "`r`n") -Encoding UTF8
@@ -442,7 +445,7 @@ Dotfiles exportados para mantener una instalacion manual y controlable.
 - manifests/: listas de restauracion de HyDE usadas como referencia.
 - source/: archivos descargados del repo upstream del tema, incluyendo tarballs y README si existen.
 - packages/: listas de paquetes para pacman, apt y dnf.
-- install.sh: instalador standalone con modo manual-pure y modo bundle.
+- install.sh: instalador standalone con modo manual-pure y modo bundle, con listas de paquetes embebidas.
 - manual-pure/: notas del modo standalone usado como referencia.
 
 ## Estado actual
