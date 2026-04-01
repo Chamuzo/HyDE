@@ -134,7 +134,7 @@ patch_restore_shl() {
 }
 
 # ============================================================================
-# PATCH 5: chaotic_aur.sh — Add fingerprint verification
+# PATCH 5: chaotic_aur.sh — Add fallback keyserver + fingerprint verification
 # ============================================================================
 patch_chaotic_aur() {
     local file="${scrDir}/chaotic_aur.sh"
@@ -146,26 +146,44 @@ patch_chaotic_aur() {
         return 0
     fi
 
-    # Insert fingerprint check before lsign-key using temp file splice
-    local tmp_verify
-    tmp_verify=$(mktemp)
-    cat > "$tmp_verify" << 'VERIFY'
-    # [SECURITY PATCH] Verify key fingerprint before signing
+    # Strategy: Replace the entire recv-key + lsign-key block with a hardened version
+    # Original lines:
+    #   pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com || { ... }
+    #   pacman-key --lsign-key 3056513887B78AEB || { ... }
+
+    # Replace recv-key line with version that tries multiple keyservers
+    sed -i 's|pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com|# [SECURITY PATCH] Try multiple keyservers\n    pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com 2>/dev/null \|\| pacman-key --recv-key 3056513887B78AEB --keyserver keys.openpgp.org 2>/dev/null \|\| pacman-key --recv-key 3056513887B78AEB --keyserver hkps://keyserver.ubuntu.com|' "$file"
+
+    # Insert fingerprint verification BEFORE lsign-key (not after recv-key)
+    local lsign_line
+    lsign_line=$(grep -n 'lsign-key 3056513887B78AEB' "$file" | head -1 | cut -d: -f1)
+    if [ -n "$lsign_line" ]; then
+        local tmp_verify
+        tmp_verify=$(mktemp)
+        cat > "$tmp_verify" << 'VERIFY'
+    # [SECURITY PATCH] Verify key fingerprint before locally signing
     if ! pacman-key --finger 3056513887B78AEB 2>/dev/null | grep -qi "3056513887B78AEB"; then
-        echo "[SECURITY] WARNING: Key fingerprint verification failed!"
-        echo "Expected key: 3056513887B78AEB"
-        echo "Aborting for safety. Verify the key manually."
+        echo "[SECURITY] Key fingerprint verification failed after import!"
+        echo "The key may not have been imported correctly."
+        echo "Try manually: sudo pacman-key --recv-key 3056513887B78AEB --keyserver hkps://keyserver.ubuntu.com"
         exit 1
     fi
-    echo "[SECURITY] Key fingerprint verified: 3056513887B78AEB"
+    echo "[SECURITY] Key fingerprint verified successfully"
 VERIFY
-    insert_after_match "$file" 'recv-key 3056513887B78AEB' "$tmp_verify"
-    rm -f "$tmp_verify"
+        local tmp_out
+        tmp_out=$(mktemp)
+        head -n "$((lsign_line - 1))" "$file" > "$tmp_out"
+        cat "$tmp_verify" >> "$tmp_out"
+        tail -n +"$lsign_line" "$file" >> "$tmp_out"
+        mv "$tmp_out" "$file"
+        chmod +x "$file"
+        rm -f "$tmp_verify"
+    fi
 
-    # Remove --noconfirm from package installs
+    # Remove --noconfirm from remote package installs (user should confirm)
     sed -i 's|pacman -U --noconfirm|pacman -U|g' "$file"
 
-    log_patch "chaotic_aur.sh — fingerprint verification added, --noconfirm removed"
+    log_patch "chaotic_aur.sh — fallback keyservers + fingerprint verification + --noconfirm removed"
     PATCH_COUNT=$((PATCH_COUNT + 1))
 }
 

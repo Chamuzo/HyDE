@@ -4,8 +4,6 @@
 #|-/ /--| Wraps install.sh with hardening          |-/ /--|#
 #|/ /---+------------------------------------------+/ /---|#
 
-set -euo pipefail
-
 cat <<"EOF"
 
 -------------------------------------------------
@@ -53,7 +51,21 @@ fi
 echo -e "${GRN}[OK]${RST} System checks passed"
 
 # ============================================================================
-# STEP 1: Apply security patches
+# STEP 1.5: Fix permissions on all scripts
+# ============================================================================
+echo ""
+echo -e "${BLU}[1.5/6]${RST} Fixing script permissions..."
+
+find "${cloneDir}" -name "*.sh" -exec chmod +x {} \;
+# Also fix non-.sh executables
+chmod +x "${cloneDir}/Configs/.local/bin/"* 2>/dev/null || true
+chmod +x "${cloneDir}/Configs/.local/lib/hyde/"*.sh 2>/dev/null || true
+chmod +x "${cloneDir}/Configs/.local/lib/hyde/"*.py 2>/dev/null || true
+
+echo -e "${GRN}[OK]${RST} All scripts marked as executable"
+
+# ============================================================================
+# STEP 2: Apply security patches
 # ============================================================================
 echo ""
 echo -e "${BLU}[2/6]${RST} Applying security patches..."
@@ -86,6 +98,13 @@ fi
 cp "${scrDir}/pkg_extra.lst" "${scrDir}/pkg_extra.lst.original"
 echo "# Extras disabled by custom installer" > "${scrDir}/pkg_extra.lst"
 echo -e "${GRN}[OK]${RST} Extra packages disabled"
+
+# Ensure originals are restored even if installer fails
+restore_originals() {
+    [ -f "${scrDir}/pkg_core.lst.original" ] && mv "${scrDir}/pkg_core.lst.original" "${scrDir}/pkg_core.lst"
+    [ -f "${scrDir}/pkg_extra.lst.original" ] && mv "${scrDir}/pkg_extra.lst.original" "${scrDir}/pkg_extra.lst"
+}
+trap restore_originals EXIT
 
 # ============================================================================
 # STEP 3: Pre-set choices (fish shell, skip oh-my-zsh)
@@ -120,17 +139,7 @@ else
 fi
 
 # ============================================================================
-# STEP 6: Restore original package lists
-# ============================================================================
-if [ -f "${scrDir}/pkg_core.lst.original" ]; then
-    mv "${scrDir}/pkg_core.lst.original" "${scrDir}/pkg_core.lst"
-fi
-if [ -f "${scrDir}/pkg_extra.lst.original" ]; then
-    mv "${scrDir}/pkg_extra.lst.original" "${scrDir}/pkg_extra.lst"
-fi
-
-# ============================================================================
-# DONE
+# DONE (originals restored automatically via trap)
 # ============================================================================
 echo ""
 echo -e "${GRN}========================================${RST}"

@@ -3,7 +3,11 @@
     "allow": [
       "Bash(find /c/Users/chamo/Documents/HyDE -type f -name *.lst -o -name install.sh -o -name *.conf -o -name *theme* -o -name *nvidia*)",
       "Bash(grep -r \"eval\\\\|source.*$\" /c/Users/chamo/Documents/HyDE/Scripts/*.sh)",
-      "Bash(ls -la /c/Users/chamo/Documents/HyDE/Configs/.local/bin/ /c/Users/chamo/Documents/HyDE/Configs/.local/lib/hyde/*.sh)"
+      "Bash(ls -la /c/Users/chamo/Documents/HyDE/Configs/.local/bin/ /c/Users/chamo/Documents/HyDE/Configs/.local/lib/hyde/*.sh)",
+      "Bash(bash -n custom_install.sh)",
+      "Bash(bash -n security_patches.sh)",
+      "Bash(bash -n theme_manager.sh)",
+      "Bash(bash -n harden.sh)"
     ]
   }
 }

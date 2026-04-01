@@ -109,7 +109,7 @@ scan_theme() {
     fi
 
     # Check tarballs for path traversal and symlinks
-    for tarball in "$theme_dir"/../*.tar.* 2>/dev/null; do
+    for tarball in "$theme_dir"/../*.tar.*; do
         [ -f "$tarball" ] || continue
         if tar -tf "$tarball" 2>/dev/null | grep -q '^\.\./\|^/'; then
             echo -e "${RED}[SECURITY] Tarball contains path traversal: $(basename "$tarball")${RST}"

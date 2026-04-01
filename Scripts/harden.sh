@@ -57,9 +57,19 @@ if command -v vscodium &>/dev/null || command -v codium &>/dev/null; then
     if [ -f "$vscodium_settings" ]; then
         # Only add if not already present
         if ! grep -q "telemetry.telemetryLevel" "$vscodium_settings"; then
-            # Insert before last closing brace
-            sed -i '$ s/}/,\n    "telemetry.telemetryLevel": "off",\n    "update.mode": "none"\n}/' "$vscodium_settings"
-            log_ok "VSCodium telemetry disabled"
+            # Insert telemetry settings using python for reliable JSON handling
+            python3 -c "
+import json, sys
+try:
+    with open('$vscodium_settings', 'r') as f:
+        cfg = json.load(f)
+except:
+    cfg = {}
+cfg['telemetry.telemetryLevel'] = 'off'
+cfg['update.mode'] = 'none'
+with open('$vscodium_settings', 'w') as f:
+    json.dump(cfg, f, indent=4)
+" 2>/dev/null && log_ok "VSCodium telemetry disabled" || log_warn "Could not modify VSCodium settings"
         else
             log_skip "VSCodium telemetry already configured"
         fi
@@ -87,6 +97,7 @@ if systemctl is-active systemd-resolved &>/dev/null || systemctl is-enabled syst
         log_skip "DNS already configured"
     else
         sudo cp /etc/systemd/resolved.conf /etc/systemd/resolved.conf.bkp 2>/dev/null || true
+        sudo mkdir -p /etc/systemd/resolved.conf.d
         sudo tee /etc/systemd/resolved.conf.d/dns-over-tls.conf > /dev/null <<'DNS'
 [Resolve]
 DNS=1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com 2606:4700:4700::1111#cloudflare-dns.com
@@ -94,7 +105,6 @@ FallbackDNS=9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net
 DNSOverTLS=opportunistic
 DNSSEC=allow-downgrade
 DNS
-        sudo mkdir -p /etc/systemd/resolved.conf.d 2>/dev/null || true
         sudo systemctl restart systemd-resolved
         log_ok "DNS-over-TLS configured (Cloudflare primary, Quad9 fallback)"
     fi
